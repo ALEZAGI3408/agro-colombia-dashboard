@@ -1,0 +1,5 @@
+# Dependencias para ejecutar la versión COMPLETA en local (python app.py),
+# que usa Seaborn + Matplotlib + Plotly (requisito del ejercicio).
+-r requirements.txt
+matplotlib>=3.9
+seaborn>=0.13

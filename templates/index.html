@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AgroColombia · Panel de Fincas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+</head>
+<body>
+
+<!-- ===================== HEADER / FIRMA TOPOGRÁFICA ===================== -->
+<header class="hero">
+  <svg class="contours" viewBox="0 0 1440 260" preserveAspectRatio="none" aria-hidden="true">
+    <g fill="none" stroke="currentColor">
+      <path d="M0,210 C240,150 420,250 720,180 C980,120 1160,220 1440,150"/>
+      <path d="M0,180 C240,120 420,220 720,150 C980,90 1160,190 1440,120"/>
+      <path d="M0,150 C240,90 420,190 720,120 C980,60 1160,160 1440,90"/>
+      <path d="M0,120 C240,60 420,160 720,90 C980,30 1160,130 1440,60"/>
+      <path d="M0,90 C240,30 420,130 720,60 C980,0 1160,100 1440,30"/>
+      <path d="M0,240 C240,180 420,280 720,210 C980,150 1160,250 1440,180"/>
+    </g>
+  </svg>
+
+  <div class="hero-inner">
+    <p class="eyebrow">Fundamentos de Ciencias de Datos · Ejercicio 2</p>
+    <h1>Cultivos de ladera,<br><em>leídos como datos.</em></h1>
+    <p class="lede">
+      Panel exploratorio de <span id="hero-count">500</span> fincas agrícolas
+      colombianas —café, cacao, banano y aguacate— entre la cordillera cafetera.
+      Filtra por región, cultivo y tecnificación para ver cómo cambia la historia.
+    </p>
+    <div class="clean-strip" id="clean-strip"><!-- resumen de limpieza --></div>
+  </div>
+</header>
+
+<main>
+  <!-- ===================== FILTROS ===================== -->
+  <section class="filters" aria-label="Filtros">
+    <div class="filters-head">
+      <span class="section-tag">Filtros</span>
+      <button id="reset-btn" class="ghost-btn" type="button">Limpiar todo</button>
+    </div>
+    <div class="filter-grid">
+      <div class="filter-group">
+        <label>Departamento</label>
+        <div class="chips" id="f-departamentos"></div>
+      </div>
+      <div class="filter-group">
+        <label>Tipo de cultivo</label>
+        <div class="chips" id="f-cultivos"></div>
+      </div>
+      <div class="filter-group">
+        <label>Nivel de tecnificación</label>
+        <div class="chips" id="f-niveles"></div>
+      </div>
+      <div class="filter-group">
+        <label>Riego tecnificado</label>
+        <div class="segmented" id="f-riego">
+          <button data-val="todos" class="active" type="button">Todos</button>
+          <button data-val="si" type="button">Sí</button>
+          <button data-val="no" type="button">No</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== KPIs ===================== -->
+  <section class="kpi-strip" id="kpi-strip" aria-label="Indicadores clave"></section>
+
+  <!-- ===================== GRÁFICAS INTERACTIVAS ===================== -->
+  <section class="block">
+    <div class="block-head">
+      <span class="section-tag">01 · Interactivo (Plotly)</span>
+      <h2>El mapa productivo</h2>
+    </div>
+
+    <div class="chart-row">
+      <figure class="card">
+        <figcaption>
+          <h3>Producción por departamento</h3>
+          <p class="story" id="story-dept"></p>
+        </figcaption>
+        <div class="plot" id="plot-dept"></div>
+      </figure>
+
+      <figure class="card">
+        <figcaption>
+          <h3>Precio promedio por cultivo</h3>
+          <p class="story" id="story-precio"></p>
+        </figcaption>
+        <div class="plot" id="plot-precio"></div>
+      </figure>
+    </div>
+
+    <div class="chart-row">
+      <figure class="card wide">
+        <figcaption>
+          <h3>Área vs. producción, por cultivo</h3>
+          <p class="story" id="story-scatter"></p>
+        </figcaption>
+        <div class="plot tall" id="plot-scatter"></div>
+      </figure>
+
+      <figure class="card">
+        <figcaption>
+          <h3>Nivel de tecnificación</h3>
+          <p class="story" id="story-tech"></p>
+        </figcaption>
+        <div class="plot tall" id="plot-tech"></div>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ===================== GRÁFICAS ANALÍTICAS (SEABORN/MPL) ===================== -->
+  <section class="block">
+    <div class="block-head">
+      <span class="section-tag">02 · Analítico (Seaborn · Matplotlib)</span>
+      <h2>Bajo la superficie</h2>
+    </div>
+    <div class="chart-row three">
+      <figure class="card">
+        <figcaption><h3>Correlaciones</h3>
+          <p class="story">Qué variables se mueven juntas. Rojo = relación positiva, azul = negativa.</p></figcaption>
+        <div class="analytic-slot" id="slot-heatmap"></div>
+      </figure>
+      <figure class="card">
+        <figcaption><h3>Producción y tecnificación</h3>
+          <p class="story">Distribución de la producción en cada nivel tecnológico.</p></figcaption>
+        <div class="analytic-slot" id="slot-boxplot"></div>
+      </figure>
+      <figure class="card">
+        <figcaption><h3>Rendimiento por hectárea</h3>
+          <p class="story">Cuántas toneladas rinde cada hectárea. La línea marca la media.</p></figcaption>
+        <div class="analytic-slot" id="slot-hist"></div>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ===================== EDA + REPORTE ===================== -->
+  <section class="block">
+    <div class="block-head">
+      <span class="section-tag">03 · Síntesis</span>
+      <h2>Lo que dicen los números</h2>
+    </div>
+    <div class="synth">
+      <div class="card insights-card">
+        <h3>Hallazgos</h3>
+        <ul id="insights-list"></ul>
+        <button id="report-btn" class="primary-btn" type="button">
+          Descargar reporte HTML
+        </button>
+      </div>
+      <div class="card table-card">
+        <h3>Estadística descriptiva</h3>
+        <div class="table-scroll"><table id="describe-table"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="page-foot">
+    <span>AgroColombia</span>
+    <span>500 fincas · 8 departamentos · 5 cultivos · Ejercicio 2</span>
+  </footer>
+</main>
+
+<div id="loader" class="loader hidden"><div class="spinner"></div></div>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

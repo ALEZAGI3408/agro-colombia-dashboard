@@ -1,0 +1,8 @@
+# Dependencias para el DESPLIEGUE en Vercel (modo ligero).
+# El backend solo usa pandas/numpy; las 3 gráficas analíticas se dibujan con
+# Plotly.js en el cliente y el reporte con plotly (Python puro). Sin Matplotlib
+# ni Seaborn ni SciPy -> el paquete cabe en el límite de las funciones serverless.
+Flask>=3.0
+pandas>=2.2
+numpy>=1.26
+plotly>=5.24

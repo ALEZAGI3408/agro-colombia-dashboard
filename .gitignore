@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Logs / temporales
+*.log
+server*.log
+report_test.html
+
+# Comprimido usado solo para el despliegue inline (opcional)
+# agro_colombia.csv.gz
+
+# Vercel
+.vercel/
